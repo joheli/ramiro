@@ -50,22 +50,7 @@ jobs:
         with:
           context: .
           push: true
-          provenance: false
+          provenance: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-      
-      - name: Get image digest
-        id: get-digest
-        run: |
-          IMAGE_TAG=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.version }}
-          RAW_MANIFEST=$(docker buildx imagetools inspect "$IMAGE_TAG" --raw)
-          DIGEST=$(echo "$RAW_MANIFEST" | sha256sum | awk '{ print "sha256:" $1 }')
-          echo "Digest = $DIGEST"
-          echo "digest=$DIGEST" >> $GITHUB_OUTPUT
 
-      - name: Generate artifact attestation
-        uses: actions/attest-build-provenance@v2
-        with:
-          subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          subject-digest:  ${{ steps.get-digest.outputs.digest }}
-          push-to-registry: true

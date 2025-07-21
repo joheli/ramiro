@@ -1,6 +1,8 @@
 # Ramiro
 
 `ramiro` is a dockerized server for [marimo](https://marimo.io/) notebooks based on [fastapi](https://fastapi.tiangolo.com/).
+The images are available under [packages](https://github.com/joheli/ramiro/pkgs/container/ramiro). Pull the latest image via 
+docker command `docker pull ghcr.io/joheli/ramiro:latest`.
 
 ## Start rollin'
 
@@ -9,14 +11,16 @@ Spin up a docker container using the image provided with a volume (folder) conta
 E.g.
 
 ```
-docker run --name ramiro --volume /your/path/to/marimo_notebooks:/notebooks ramiro:XX
+docker run --name ramiro -v /your/path/to/marimo_notebooks:/notebooks -p 9000:9000 ghcr.io/joheli/ramiro:latest
 ```
+
+If you have started this on your own computer, you can now access the landing page under `http://localhost:9000`.
 
 ## Install python packages
 
 You can either rebuild the image with a fresh `requirements.txt` file or add packages after build into the container.
 
-E.g. 
+To add packages into the container proceed as follows:
 
 ```
 # Enter the container with user "app"
@@ -31,7 +35,7 @@ pippin XXX
 
 ## Reload the server
 
-The files are served with [uvicorn](https://www.uvicorn.org/). To reload, enter the container as above. Then, type
+The files are served with [uvicorn](https://www.uvicorn.org/). To reload uvicorn in the container, enter the container as above. Then, type
 
 ```
 # long command

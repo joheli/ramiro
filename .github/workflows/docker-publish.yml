@@ -58,7 +58,8 @@ jobs:
         id: get-digest
         run: |
           IMAGE_TAG=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.version }}
-          DIGEST=$(docker buildx imagetools inspect "$IMAGE_TAG" --format '{{index .Manifest "digest"}}')
+          DIGEST=$(docker buildx imagetools inspect "$IMAGE_TAG" --format '{{ .Digest }}')
+          echo "Digest = $DIGEST"
           echo "digest=$DIGEST" >> $GITHUB_OUTPUT
 
       - name: Generate artifact attestation

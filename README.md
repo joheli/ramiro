@@ -6,12 +6,13 @@ docker command `docker pull ghcr.io/joheli/ramiro:latest`.
 
 ## Start rollin'
 
-Spin up a docker container using the image provided with a volume (folder) containing your marimo notebooks and you should be good to go.
+Spin up a docker container using the image provided with a volume (folder) containing your marimo notebooks and you should be good to go. 
+Please note that the volume should be mapped to `/app/notebooks` in the container.
 
 E.g.
 
 ```
-docker run --name ramiro -v /your/path/to/marimo_notebooks:/notebooks -p 9000:9000 ghcr.io/joheli/ramiro:latest
+docker run --name ramiro -v /your/path/to/marimo_notebooks:/app/notebooks -p 9000:9000 ghcr.io/joheli/ramiro:latest
 ```
 
 If you have started this on your own computer, you can now access the landing page under `http://localhost:9000`.

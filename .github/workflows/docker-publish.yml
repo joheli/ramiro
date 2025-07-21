@@ -58,7 +58,8 @@ jobs:
         id: get-digest
         run: |
           IMAGE_TAG=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.version }}
-          DIGEST=$(docker buildx imagetools inspect "$IMAGE_TAG" --format '{{ .Digest }}')
+          RAW_MANIFEST=$(docker buildx imagetools inspect "$IMAGE_TAG" --raw)
+          DIGEST=$(echo "$RAW_MANIFEST" | sha256sum | awk '{ print "sha256:" $1 }')
           echo "Digest = $DIGEST"
           echo "digest=$DIGEST" >> $GITHUB_OUTPUT
 

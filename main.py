@@ -4,9 +4,13 @@ import glob
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
+import importlib
 
 # Directory where marimo notebooks are stored
 NOTEBOOKS_DIR = "notebooks"
+
+# Directory where additional routers can be places
+ROUTERS_DIR = "routers"
 
 # create a api that serves marimo notebooks
 server = marimo.create_asgi_app()
@@ -48,6 +52,19 @@ if (
 
 # create a fastapi app
 app = FastAPI()
+
+# add additional routes, if present in folder ROUTERS_DIR
+for filename in os.listdir(ROUTERS_DIR):
+    if filename.endswith(".py") and filename != "__init__.py":
+        modulename = filename[:-3]
+        module_path = f"{ROUTERS_DIR}.{modulename}"
+        try:
+            # Import the module dynamically
+            module = importlib.import_module(module_path)
+            # Expect the router to be named "router" in each module
+            app.include_router(getattr(module, "router"))
+        except (ImportError, AttributeError) as e:
+            print(f"Skipping {modulename}: {e}")
 
 # as stated above, marimo apps are served under base route '/apps' even though
 # routes start with '/'

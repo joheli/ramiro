@@ -1,6 +1,6 @@
 # Ramiro
 
-`ramiro` is a dockerized server for [marimo](https://marimo.io/) notebooks based on [fastapi](https://fastapi.tiangolo.com/).
+`ramiro` is a dockerized server for [marimo](https://marimo.io/) notebooks based on [FastAPI](https://fastapi.tiangolo.com/).
 The images are available under [packages](https://github.com/joheli/ramiro/pkgs/container/ramiro). Pull the latest image via 
 docker command `docker pull ghcr.io/joheli/ramiro:latest`.
 
@@ -36,6 +36,29 @@ pippin XXX
 
 > [!TIP]
 > If you don't wish to reinstall all python packages every time you restart the container, how about persisting `/app/.local` to a volume? How, you ask? Simple: just add `-v ramiro_local:/app/.local` to above "docker run" command! Now all changes in `/app/.local` are persisted to named volume `ramiro_local`. (You can obviously change the name of the named volume or mount an existing folder as well.)
+
+## Add route(r)s to FastAPI
+
+You can add route(r)s to the FastAPI container. A bit of disambiguation: a _route_ is an API endpoint, a _router_ specifies different _routes_ and is of type `fastapi.APIRouter`. 
+To add additional endpoint "hello", create a file called `hello.py` with the following contents:
+
+```python
+from fastapi import APIRouter
+
+router = APIRouter()
+
+@router.get("/hello")
+async def say_hello():
+    return {"message": "Hello!"}
+```
+
+Now put file `hello.py` into a folder that you bind as a volume to the container by adding `-v /your/router/folder:/app/routers` to above "docker run" command.
+
+> [!IMPORTANT]
+> Please only specify routes that have not been used yet! Just as a reminder: `/` and `/apps` are already taken, see [main.py](main.py), so add different endpoints!
+
+> [!CAUTION]
+> Please only connect folders containing trusted routes and python code!
 
 ## Reload the server
 

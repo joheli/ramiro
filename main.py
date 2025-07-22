@@ -65,7 +65,7 @@ for filename in os.listdir(ROUTERS_DIR):
             app.include_router(getattr(module, "router"))
         except (ImportError, AttributeError) as e:
             print(f"Skipping {modulename}: {e}")
-
+            
 # as stated above, marimo apps are served under base route '/apps' even though
 # routes start with '/'
 app.mount("/apps", server.build())

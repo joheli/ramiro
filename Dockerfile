@@ -7,6 +7,7 @@ WORKDIR /app
 COPY main.py /app/main.py
 COPY requirements.txt /app/requirements.txt
 COPY whl /app/whl
+COPY routers /app/routers
 COPY notebooks /app/notebooks
 COPY templates /app/templates
 
@@ -31,7 +32,7 @@ RUN printf "#!/bin/bash\nuvicorn main:app --reload &" > reload; \
 # add .local/bin to PATH
 ENV PATH="/app/.local/bin:$PATH"
 
-# back to /app
+# cd back to /app
 WORKDIR ../.. 
 
 # serve on port 9000

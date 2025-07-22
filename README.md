@@ -34,6 +34,9 @@ pip install --user --no-cache-dir XXX
 pippin XXX
 ```
 
+> [!TIP]
+> If you don't wish to reinstall all python packages every time you restart the container, how about persisting `/app/.local` to a volume? How, you ask? Simple: just add `-v ramiro_local:/app/.local` to above "docker run" command! Now all changes in `/app/.local` are persisted to named volume `ramiro_local`. (You can obviously change the name of the named volume or mount an existing folder as well.)
+
 ## Reload the server
 
 The files are served with [uvicorn](https://www.uvicorn.org/). To reload uvicorn in the container, enter the container as above. Then, type

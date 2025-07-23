@@ -1,3 +1,4 @@
+[![Build and Publish Docker Image](https://github.com/joheli/ramiro/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/joheli/ramiro/actions/workflows/docker-publish.yml)
 # Ramiro
 
 `ramiro` is a dockerized server for [marimo](https://marimo.io/) notebooks based on [FastAPI](https://fastapi.tiangolo.com/).
@@ -15,7 +16,7 @@ E.g.
 docker run --name ramiro -v /your/path/to/marimo_notebooks:/app/notebooks -p 9000:9000 ghcr.io/joheli/ramiro:latest
 ```
 
-If you have started this on your own computer, you can now access the landing page under `http://localhost:9000`.
+If you have entered this on your own computer, you should now be able to access the landing page under `http://localhost:9000`.
 
 ## Install python packages
 

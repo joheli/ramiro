@@ -83,4 +83,4 @@ async def list_apps(request: Request):
         "help": "No apps found.",
     }
     # return html served as landing page
-    return templates.TemplateResponse("template.html", context=context)
+    return templates.TemplateResponse(name="template.html", context=context)

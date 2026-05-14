@@ -1,42 +1,59 @@
 FROM python:3.14-slim
 
-# change dir
-WORKDIR /app
+# install system packages needed for git-based requirements
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git \
+ && rm -rf /var/lib/apt/lists/*
 
-# copy files and folders
-COPY main.py /app/main.py
-COPY requirements.txt /app/requirements.txt
-COPY whl /app/whl
-COPY routers /app/routers
-COPY notebooks /app/notebooks
-COPY templates /app/templates
+# install uv binary
+COPY --from=docker.io/astral/uv:latest /uv /uvx /bin/
+
+# tell uv to use the system Python inside the container
+ENV UV_SYSTEM_PYTHON=1
 
 # create non-root user app
-RUN useradd -m -d /app -s /bin/bash app; \
-    chown -R app:app /app
+RUN useradd -m -d /app -s /bin/bash app
+
+# app directory
+WORKDIR /app
+
+# copy dependency inputs first for better caching
+COPY requirements.txt /app/requirements.txt
+COPY whl /app/whl
+
+# make app directory writable by the app user
+RUN chown -R app:app /app
+
+# switch to non-root user
 USER app
 
-# install packages listed in requirements.xt
-RUN pip install --user --no-cache-dir -r requirements.txt
+# install Python dependencies from requirements.txt
+RUN uv pip install --no-cache -r requirements.txt
 
-# install wheels packages placed in directory /app/whl
-RUN ls whl/*.whl 2>/dev/null && pip install --user --no-cache-dir whl/*.whl || echo "No wheels to install found."
+# install local wheel packages
+RUN ls whl/*.whl 2>/dev/null && uv pip install --no-cache whl/*.whl || echo "No wheels to install found."
 
 # create convenience reload and install scripts
-WORKDIR .local/bin
-RUN printf "#!/bin/bash\nuvicorn main:app --reload &" > reload; \
-    chmod u+x reload; \ 
-    printf '#!/bin/bash\npip install --user --no-cache-dir "$@"' > pippin; \
-    chmod u+x pippin; 
+WORKDIR /app/.local/bin
+RUN printf '#!/bin/bash\nuvicorn main:app --reload &\n' > reload; \
+    chmod u+x reload; \
+    printf '#!/bin/bash\nuv pip install --no-cache "$@"\n' > pippin; \
+    chmod u+x pippin
 
 # add .local/bin to PATH
 ENV PATH="/app/.local/bin:$PATH"
 
-# cd back to /app
-WORKDIR ../.. 
+# return to app dir
+WORKDIR /app
+
+# now copy the rest of the application code
+COPY --chown=app:app main.py /app/main.py
+COPY --chown=app:app routers /app/routers
+COPY --chown=app:app notebooks /app/notebooks
+COPY --chown=app:app templates /app/templates
 
 # serve on port 9000
 EXPOSE 9000
 
-# Start uvicorn
+# start uvicorn
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "9000"]

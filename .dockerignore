@@ -1,0 +1,7 @@
+__marimo__
+*.pyc
+__pycache__
+.git
+.github/
+.gitignore
+LICENSE

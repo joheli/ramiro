@@ -1,15 +1,9 @@
 FROM python:3.14-slim
 
-# install system packages needed for git-based requirements
+# install system packages needed for pip git+https://... dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
  && rm -rf /var/lib/apt/lists/*
-
-# install uv binary
-COPY --from=docker.io/astral/uv:latest /uv /uvx /bin/
-
-# tell uv to use the system Python inside the container
-ENV UV_SYSTEM_PYTHON=1
 
 # create non-root user app
 RUN useradd -m -d /app -s /bin/bash app
@@ -17,27 +11,27 @@ RUN useradd -m -d /app -s /bin/bash app
 # app directory
 WORKDIR /app
 
-# copy dependency inputs first for better caching
+# copy dependency manifests first for better layer caching
 COPY requirements.txt /app/requirements.txt
 COPY whl /app/whl
 
 # make app directory writable by the app user
 RUN chown -R app:app /app
 
-# switch to non-root user
+# switch to non-root user before pip --user installs
 USER app
 
-# install Python dependencies from requirements.txt
-RUN uv pip install --no-cache -r requirements.txt
+# install Python dependencies
+RUN pip install --user --no-cache-dir -r requirements.txt
 
 # install local wheel packages
-RUN ls whl/*.whl 2>/dev/null && uv pip install --no-cache whl/*.whl || echo "No wheels to install found."
+RUN ls whl/*.whl 2>/dev/null && pip install --user --no-cache-dir whl/*.whl || echo "No wheels to install found."
 
 # create convenience reload and install scripts
 WORKDIR /app/.local/bin
 RUN printf '#!/bin/bash\nuvicorn main:app --reload &\n' > reload; \
     chmod u+x reload; \
-    printf '#!/bin/bash\nuv pip install --no-cache "$@"\n' > pippin; \
+    printf '#!/bin/bash\npip install --user --no-cache-dir "$@"\n' > pippin; \
     chmod u+x pippin
 
 # add .local/bin to PATH

@@ -1,4 +1,4 @@
 fastapi
-marimo
+marimo==0.25.2
 uvicorn
 jinja2
